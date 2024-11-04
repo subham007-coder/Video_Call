@@ -1,19 +1,32 @@
-import React, { createContext, useMemo, useContext } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 
-const SocketContext = createContext(null);
+// Create a context for the socket
+export const SocketContext = createContext();
 
-export const useSocket = () => {
-  const socket = useContext(SocketContext);
-  return socket;
-};
+// Replace this with your deployed Socket.IO server URL
+const SOCKET_SERVER_URL = "https://video-call-a4d9.onrender.com"; // Update this line
 
-export const SocketProvider = (props) => {
-  const socket = useMemo(() => io("localhost:8000"), []);
+export const SocketProvider = ({ children }) => {
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io(SOCKET_SERVER_URL, {
+      withCredentials: true, // Include this if you need to send cookies
+      transports: ["websocket"], // Adjust transport methods if necessary
+    });
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  const value = useMemo(() => socket, [socket]);
 
   return (
-    <SocketContext.Provider value={socket}>
-      {props.children}
+    <SocketContext.Provider value={value}>
+      {children}
     </SocketContext.Provider>
   );
 };
