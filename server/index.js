@@ -12,14 +12,9 @@ const allowedOrigins = [
 
 const io = new Server(8000, {
   cors: {
-    origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true); // Allow the request
-      } else {
-        callback(new Error("Not allowed by CORS")); // Reject the request
-      }
-    },
+    origin: allowedOrigins, // Allow multiple origins
     methods: ["GET", "POST"],
+    credentials: true // Allow credentials if needed
   },
 });
 
