@@ -12,7 +12,7 @@ const allowedOrigins = [
 
 const io = new Server(8000, {
   cors: {
-    origin: allowedOrigins, // Allow all origins for testing
+    origin: allowedOrigins[1], // Allow all origins for testing
     methods: ["GET", "POST"],
     credentials: true
   },
