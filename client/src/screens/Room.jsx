@@ -110,19 +110,19 @@ const RoomPage = () => {
   ]);
 
   return (
-    <div>
-      <h1>Room Page</h1>
-      <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
-      {myStream && <button onClick={sendStreams}>Send Stream</button>}
-      {remoteSocketId && <button onClick={handleCallUser}>CALL</button>}
+    <div className="bg-slate-900 w-full min-h-screen font-sans text-white flex justify-center items-center flex-col">
+      <h1 className="mb-8 text-2xl">Room Page</h1>
+
+      
+
       {myStream && (
         <>
-          <h1>My Stream</h1>
+          <h1 className="mb-8 text-xl">My Stream</h1>
           <ReactPlayer
             playing
             muted
-            height="100px"
-            width="200px"
+            height="300px"
+            width="400px"
             url={myStream}
           />
         </>
@@ -133,12 +133,18 @@ const RoomPage = () => {
           <ReactPlayer
             playing
             muted
-            height="100px"
-            width="200px"
+            height="300px"
+            width="400px"
             url={remoteStream}
           />
         </>
       )}
+      <h4>{remoteSocketId ? "Connected" : "Waiting For Some One!"}</h4>
+
+      <div className="button-wrap gap-2 flex mt-5">
+      {myStream && <button onClick={sendStreams} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:bg-gray-500">Send Stream</button>}
+      {remoteSocketId && <button onClick={handleCallUser} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:bg-gray-500">CALL</button>}
+      </div>
     </div>
   );
 };
