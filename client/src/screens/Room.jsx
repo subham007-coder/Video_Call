@@ -111,39 +111,39 @@ const RoomPage = () => {
 
   return (
     <div className="bg-slate-900 w-full min-h-screen font-sans text-white flex justify-center items-center flex-col">
-      <h1 className="mb-8 text-2xl">Room Page</h1>
+      <h1 className="text-2xl">Room Page</h1>
 
       
-
+<div className="video-wraper flex flex-col justify-center items-center">
       {myStream && (
         <>
-          <h1 className="mb-8 text-xl">My Stream</h1>
+          {/* <h1 className="mb-2 text-xl">My Stream</h1> */}
           <ReactPlayer
             playing
             muted
             height="300px"
-            width="400px"
+            width="300px"
             url={myStream}
           />
         </>
       )}
       {remoteStream && (
         <>
-          <h1>Remote Stream</h1>
+          {/* <h1 className="mb-2 text-xl">Remote Stream</h1> */}
           <ReactPlayer
             playing
             muted
             height="300px"
-            width="400px"
+            width="300px"
             url={remoteStream}
           />
         </>
       )}
-      <h4>{remoteSocketId ? "Connected" : "Waiting For Some One!"}</h4>
-
+      <h4 className="mt-2">{remoteSocketId ? "Connected" : "Waiting For Some One!"}</h4>
+      </div>
       <div className="button-wrap gap-2 flex mt-5">
-      {myStream && <button onClick={sendStreams} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:bg-gray-500">Send Stream</button>}
-      {remoteSocketId && <button onClick={handleCallUser} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:bg-gray-500">CALL</button>}
+      {myStream && <button onClick={sendStreams} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300">Send Stream</button>}
+      {remoteSocketId && <button onClick={handleCallUser} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300">Call</button>}
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ const LobbyScreen = () => {
   }, [socket, handleJoinRoom]);
 
   return (
-    <div className="bg-slate-900 w-full min-h-screen font-sans text-white flex justify-center items-center flex-col">
+    <div className="bg-slate-900 w-full min-h-screen font-sans py-10 text-white flex items-center flex-col">
       <h1 className="mb-8 text-2xl">Join Room</h1>
       <form onSubmit={handleSubmitForm} className="max-w-sm mx-auto p-10 border rounded-lg border-gray-600 flex justify-center items-start flex-col">
         <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email ID</label>
