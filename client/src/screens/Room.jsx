@@ -31,7 +31,7 @@ const RoomPage = () => {
   const handleCallUser = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
-      video: { width: 640, height: 480 }, // Reduce the resolution here
+      video: true
     });
     const offer = await peer.getOffer();
     socket.emit("user:call", { to: remoteSocketId, offer });
@@ -43,7 +43,7 @@ const RoomPage = () => {
       setRemoteSocketId(from);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
-        video: { width: 640, height: 480 }, // Reduce the resolution here
+        video: true
       });
       setMyStream(stream);
       console.log(`Incoming Call`, from, offer);
