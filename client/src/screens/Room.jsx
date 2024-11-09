@@ -119,25 +119,27 @@ const RoomPage = () => {
       {myStream && (
         <>
           {/* <h1 className="mb-2 text-xl">My Stream</h1> */}
+          <div className="myVideo w-[300px] h-[300px]">
           <ReactPlayer
             playing
-            
             height="300px"
             width="300px"
             url={myStream}
           />
+          </div>
         </>
       )}
       {remoteStream && (
         <>
           {/* <h1 className="mb-2 text-xl">Remote Stream</h1> */}
+          <div className="remotVideo w-[300px] h-[300px]">
           <ReactPlayer
             playing
-            
             height="300px"
             width="300px"
             url={remoteStream}
           />
+          </div>
         </>
       )}
       <h4 className="mt-2">{remoteSocketId ? "Connected" : "Waiting For Some One!"}</h4>
