@@ -34,6 +34,7 @@ const LobbyScreen = () => {
   }, [socket, handleJoinRoom]);
 
   return (
+    <>
     <div className="bg-slate-900 w-full min-h-screen font-sans py-10 text-white text-center">
       <h1 className="mb-8 text-2xl">Join Room</h1>
       <form
@@ -76,8 +77,9 @@ const LobbyScreen = () => {
           Join
         </button>
       </form>
-      <Footer />
     </div>
+      <Footer />
+    </>
   );
 };
 
