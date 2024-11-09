@@ -65,7 +65,7 @@ const LobbyScreen = () => {
         </label>
         <input
           required
-          type="text"
+          type="number"
           id="room"
           value={room}
           onChange={(e) => setRoom(e.target.value)}

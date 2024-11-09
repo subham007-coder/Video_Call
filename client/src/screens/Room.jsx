@@ -1,14 +1,27 @@
+// RoomPage.jsx
 import React, { useEffect, useCallback, useState } from "react";
 import ReactPlayer from "react-player";
 import peer from "../service/peer";
 import { useSocket } from "../context/SocketProvider";
 import Footer from "../Components/Footer";
+import GestureVideo from "../Components/GestureVideo"; // Import GestureVideo
 
 const RoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
+  const [gesture, setGesture] = useState(null); // State for gesture
+
+  const handleGesture = (detectedGesture) => {
+    setGesture(detectedGesture);
+    socket.emit("gesture:detected", { detectedGesture }); // Emit gesture event
+
+    // Clear gesture after 3 seconds
+    if (detectedGesture) {
+      setTimeout(() => setGesture(null), 3000);
+    }
+  };
 
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);
@@ -18,7 +31,7 @@ const RoomPage = () => {
   const handleCallUser = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
-      video: true,
+      video: { width: 640, height: 480 }, // Reduce the resolution here
     });
     const offer = await peer.getOffer();
     socket.emit("user:call", { to: remoteSocketId, offer });
@@ -30,7 +43,7 @@ const RoomPage = () => {
       setRemoteSocketId(from);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
-        video: true,
+        video: { width: 640, height: 480 }, // Reduce the resolution here
       });
       setMyStream(stream);
       console.log(`Incoming Call`, from, offer);
@@ -113,42 +126,61 @@ const RoomPage = () => {
   return (
     <div className="bg-slate-900 w-full min-h-screen font-sans text-white flex justify-center items-center flex-col">
       <h1 className="text-2xl">Room Page</h1>
-
-      
-<div className="video-wraper flex flex-col justify-center items-center">
-      {myStream && (
-        <>
-          {/* <h1 className="mb-2 text-xl">My Stream</h1> */}
+      <div className="video-wraper flex flex-col justify-center items-center relative">
+        {myStream && (
           <div className="myVideo w-[300px] h-[300px]">
-          <ReactPlayer
-            playing
-            height="300px"
-            width="300px"
-            url={myStream}
-          />
+            <ReactPlayer playing height="300px" width="300px" url={myStream} />
           </div>
-        </>
-      )}
-      {remoteStream && (
-        <>
-          {/* <h1 className="mb-2 text-xl">Remote Stream</h1> */}
+        )}
+        {remoteStream && (
           <div className="remotVideo w-[300px] h-[300px]">
-          <ReactPlayer
-            playing
-            height="300px"
-            width="300px"
-            url={remoteStream}
-          />
+            <ReactPlayer
+              playing
+              height="300px"
+              width="300px"
+              url={remoteStream}
+            />
           </div>
-        </>
-      )}
-      <h4 className="mt-2">{remoteSocketId ? "Connected" : "Waiting For Some One!"}</h4>
+        )}
+        <GestureVideo onGesture={handleGesture} /> {/* Gesture overlay */}
+        {gesture && (
+          <div
+            style={{
+              position: "absolute",
+              top: 20,
+              left: 20,
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              color: "white",
+              padding: "5px 10px",
+              borderRadius: "8px",
+            }}
+          >
+            Gesture: {gesture}
+          </div>
+        )}
+        <h4 className="mt-2">
+          {remoteSocketId ? "Connected" : "Waiting For Someone!"}
+        </h4>
       </div>
       <div className="button-wrap gap-2 flex mt-5">
-      {myStream && <button onClick={sendStreams} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300">Send Stream</button>}
-      {remoteSocketId && <button onClick={handleCallUser} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300">Call</button>}
+        {myStream && (
+          <button
+            onClick={sendStreams}
+            className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300"
+          >
+            Send Stream
+          </button>
+        )}
+        {remoteSocketId && (
+          <button
+            onClick={handleCallUser}
+            className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300"
+          >
+            Call
+          </button>
+        )}
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };
