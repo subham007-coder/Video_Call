@@ -9,7 +9,7 @@ function Footer() {
         alt=""
       />
       <p className="ml-10 py-2 text-gray-400 font-mono text-sm">Developed By Subham Das</p>
-      <p className="ml-10 py-2 text-gray-500 font-mono text-sm">&#169; 2024</p>
+      <p className="ml-10 py-2 text-gray-400 font-mono text-sm">&#169; 2024</p>
       <p className="ml-10 py-2 text-green-500 font-mono text-sm">
         <span className="w-[10px] h-[10px] bg-green-500 rounded-[50%] inline-block mr-2"></span>All systems normal
       </p>
