@@ -69,7 +69,7 @@ const LobbyScreen = () => {
           value={room}
           onChange={(e) => setRoom(e.target.value)}
           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-transparent dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 outline-none"
-          placeholder="2406"
+          placeholder="123"
         />
         <br />
         <button className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50">
