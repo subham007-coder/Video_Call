@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useState } from "react";
 import ReactPlayer from "react-player";
 import peer from "../service/peer";
 import { useSocket } from "../context/SocketProvider";
+import Footer from "../Components/Footer";
 
 const RoomPage = () => {
   const socket = useSocket();
@@ -145,6 +146,7 @@ const RoomPage = () => {
       {myStream && <button onClick={sendStreams} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300">Send Stream</button>}
       {remoteSocketId && <button onClick={handleCallUser} className="bg-transparent py-2 px-5 rounded-lg border border-blue-500 hover:border-gray-50 hover:text-blue-300">Call</button>}
       </div>
+      <Footer/>
     </div>
   );
 };
