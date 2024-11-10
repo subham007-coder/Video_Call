@@ -52,6 +52,12 @@ io.on("connection", (socket) => {
     io.to(to).emit("peer:nego:final", { from: socket.id, ans });
   });
 
+  // Gesture sharing
+  socket.on("gesture", ({ room, gesture }) => {
+    // Broadcast the gesture to all other users in the same room
+    socket.to(room).emit("gesture", { from: socket.id, gesture });
+  });
+
   // Clean up on disconnection
   socket.on("disconnect", () => {
     const email = socketidToEmailMap.get(socket.id);

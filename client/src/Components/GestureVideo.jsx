@@ -1,17 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { debounce } from "lodash";
 
-
 function GestureVideo({ onGesture }) {
-    const [lastDetected, setLastDetected] = useState(0);
+  const [lastDetected, setLastDetected] = useState(0);
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
 
-// Debounced function to handle the gesture detection
-const handleGesture = debounce((gesture) => {
+  // Debounced function to handle the gesture detection
+  const handleGesture = debounce((gesture) => {
     onGesture(gesture);
   }, 500); // 500ms delay
 
@@ -23,7 +20,7 @@ const handleGesture = debounce((gesture) => {
 
     hands.setOptions({
       maxNumHands: 1,
-      modelComplexity: 1,
+      modelComplexity: 0, // Lower complexity for mobile optimization
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
@@ -32,39 +29,22 @@ const handleGesture = debounce((gesture) => {
 
     const videoElement = videoRef.current;
 
-    // Set up camera
+    // Set up camera with a lower resolution for mobile optimization
     if (videoElement) {
       const camera = new Camera(videoElement, {
         onFrame: async () => {
           await hands.send({ image: videoElement });
         },
-        width: 640,
-        height: 480,
+        width: 320,  // Reduced resolution
+        height: 240,
       });
       camera.start();
     }
 
     function handleResults(results) {
-      if (canvasRef.current) {
-        const canvasElement = canvasRef.current;
-        const canvasCtx = canvasElement.getContext("2d");
-        // Clear only when drawing new content
-        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-        // Draw the landmarks on the canvas
-        if (results.multiHandLandmarks) {
-          for (const landmarks of results.multiHandLandmarks) {
-            drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, {
-              color: "#00FF00",
-              lineWidth: 2,
-            });
-            drawLandmarks(canvasCtx, landmarks, {
-              color: "#FF0000",
-              lineWidth: 1,
-            });
-
-            detectGesture(landmarks);
-          }
+      if (results.multiHandLandmarks) {
+        for (const landmarks of results.multiHandLandmarks) {
+          detectGesture(landmarks);
         }
       }
     }
@@ -74,7 +54,7 @@ const handleGesture = debounce((gesture) => {
       if (now - lastDetected > 500) {
         const thumbTip = landmarks[4];
         const indexFingerTip = landmarks[8];
-    
+
         if (thumbTip.y < indexFingerTip.y) {
           onGesture("👍🏻");
         } else {
@@ -83,7 +63,6 @@ const handleGesture = debounce((gesture) => {
         setLastDetected(now);
       }
     }
-    
 
     return () => {
       hands.close();
@@ -91,14 +70,8 @@ const handleGesture = debounce((gesture) => {
   }, [onGesture]);
 
   return (
-    <div style={{ position: "relative", width: "640px", height: "480px", display: "none" }}>
+    <div style={{ display: "none" }}>
       <video ref={videoRef} style={{ display: "none" }} />
-      <canvas
-        ref={canvasRef}
-        width="640"
-        height="480"
-        style={{ position: "absolute", top: 0, left: 0, visibility: "hidden" }}
-      />
     </div>
   );
 }

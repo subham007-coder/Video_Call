@@ -9,96 +9,75 @@ import GestureVideo from "../Components/GestureVideo"; // Import GestureVideo
 const RoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
-  const [myStream, setMyStream] = useState();
-  const [remoteStream, setRemoteStream] = useState();
+  const [myStream, setMyStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
   const [gesture, setGesture] = useState(null); // State for gesture
 
   const handleGesture = (detectedGesture) => {
     setGesture(detectedGesture);
-    socket.emit("gesture:detected", { detectedGesture }); // Emit gesture event
-
-    // Clear gesture after 3 seconds
-    if (detectedGesture) {
-      setTimeout(() => setGesture(null), 3000);
-    }
+    socket.emit("gesture:detected", { detectedGesture });
+    setTimeout(() => setGesture(null), 3000); // Clear gesture after 3 seconds
   };
 
   const handleUserJoined = useCallback(({ email, id }) => {
-    console.log(`Email ${email} joined room`);
+    console.log(`User ${email} joined room`);
     setRemoteSocketId(id);
   }, []);
 
   const handleCallUser = useCallback(async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true
-    });
+    if (!remoteSocketId) return;
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
     const offer = await peer.getOffer();
     socket.emit("user:call", { to: remoteSocketId, offer });
     setMyStream(stream);
   }, [remoteSocketId, socket]);
 
-  const handleIncommingCall = useCallback(
-    async ({ from, offer }) => {
-      setRemoteSocketId(from);
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true
-      });
-      setMyStream(stream);
-      console.log(`Incoming Call`, from, offer);
-      const ans = await peer.getAnswer(offer);
-      socket.emit("call:accepted", { to: from, ans });
-    },
-    [socket]
-  );
+  const handleIncommingCall = useCallback(async ({ from, offer }) => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    setRemoteSocketId(from);
+    setMyStream(stream);
+
+    const ans = await peer.getAnswer(offer);
+    socket.emit("call:accepted", { to: from, ans });
+  }, [socket]);
 
   const sendStreams = useCallback(() => {
-    for (const track of myStream.getTracks()) {
-      peer.peer.addTrack(track, myStream);
+    if (myStream) {
+      myStream.getTracks().forEach((track) => peer.peer.addTrack(track, myStream));
     }
   }, [myStream]);
 
-  const handleCallAccepted = useCallback(
-    ({ from, ans }) => {
-      peer.setLocalDescription(ans);
-      console.log("Call Accepted!");
-      sendStreams();
-    },
-    [sendStreams]
-  );
+  const handleCallAccepted = useCallback(({ ans }) => {
+    peer.setLocalDescription(ans);
+    sendStreams();
+    console.log("Call Accepted!");
+  }, [sendStreams]);
 
   const handleNegoNeeded = useCallback(async () => {
+    if (!remoteSocketId) return;
+
     const offer = await peer.getOffer();
     socket.emit("peer:nego:needed", { offer, to: remoteSocketId });
   }, [remoteSocketId, socket]);
 
-  useEffect(() => {
-    peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
-    return () => {
-      peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
-    };
-  }, [handleNegoNeeded]);
-
-  const handleNegoNeedIncomming = useCallback(
-    async ({ from, offer }) => {
-      const ans = await peer.getAnswer(offer);
-      socket.emit("peer:nego:done", { to: from, ans });
-    },
-    [socket]
-  );
+  const handleNegoNeedIncomming = useCallback(async ({ from, offer }) => {
+    const ans = await peer.getAnswer(offer);
+    socket.emit("peer:nego:done", { to: from, ans });
+  }, [socket]);
 
   const handleNegoNeedFinal = useCallback(async ({ ans }) => {
     await peer.setLocalDescription(ans);
   }, []);
 
   useEffect(() => {
-    peer.peer.addEventListener("track", async (ev) => {
-      const remoteStream = ev.streams;
-      console.log("GOT TRACKS!!");
-      setRemoteStream(remoteStream[0]);
-    });
-  }, []);
+    peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
+    peer.peer.addEventListener("track", (ev) => setRemoteStream(ev.streams[0]));
+    return () => {
+      peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
+      peer.peer.removeEventListener("track", (ev) => setRemoteStream(ev.streams[0]));
+    };
+  }, [handleNegoNeeded]);
 
   useEffect(() => {
     socket.on("user:joined", handleUserJoined);
@@ -114,31 +93,17 @@ const RoomPage = () => {
       socket.off("peer:nego:needed", handleNegoNeedIncomming);
       socket.off("peer:nego:final", handleNegoNeedFinal);
     };
-  }, [
-    socket,
-    handleUserJoined,
-    handleIncommingCall,
-    handleCallAccepted,
-    handleNegoNeedIncomming,
-    handleNegoNeedFinal,
-  ]);
+  }, [socket, handleUserJoined, handleIncommingCall, handleCallAccepted, handleNegoNeedIncomming, handleNegoNeedFinal]);
 
   return (
     <div className="bg-slate-900 w-full min-h-screen font-sans text-white flex justify-center items-center flex-col">
       <h1 className="text-2xl">Room Page</h1>
-      <div className="video-wraper flex flex-col justify-center items-center relative">
-        {myStream && (
-            <ReactPlayer playing height="300px" width="300px" url={myStream} />
-        )}
-        {remoteStream && (
-            <ReactPlayer
-              playing
-              height="300px"
-              width="300px"
-              url={remoteStream}
-            />
-        )}
-        <GestureVideo onGesture={handleGesture} /> {/* Gesture overlay */}
+      <div className="video-wrapper flex flex-col justify-center items-center relative">
+        {myStream && <ReactPlayer playing height="300px" width="300px" url={myStream} />}
+        {remoteStream && <ReactPlayer playing height="300px" width="300px" url={remoteStream} />}
+        
+        <GestureVideo onGesture={handleGesture} /> {/* Gesture overlay component */}
+        
         {gesture && (
           <div
             style={{
