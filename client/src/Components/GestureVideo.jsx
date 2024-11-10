@@ -51,7 +51,7 @@ function GestureVideo({ onGesture }) {
 
     function detectGesture(landmarks) {
       const now = Date.now();
-      if (now - lastDetected > 500) {
+      if (now - lastDetected > 300) {
         const thumbTip = landmarks[4];
         const indexFingerTip = landmarks[8];
 
