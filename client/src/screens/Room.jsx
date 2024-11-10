@@ -123,7 +123,7 @@ const RoomPage = () => {
           {remoteSocketId ? "Connected" : "Waiting For Someone!"}
         </h4>
       </div>
-      <div className="button-wrap gap-2 flex mt-5">
+      <div className="button-wrap gap-2 flex mt-5 mb-4">
         {myStream && (
           <button
             onClick={sendStreams}
